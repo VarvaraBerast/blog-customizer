@@ -13,6 +13,7 @@ import {
 	fontSizeOptions,
 	contentWidthArr,
 	ArticleStateType,
+	OptionType,
 } from 'src/constants/articleProps';
 import { RadioGroup } from 'src/ui/radio-group';
 import { Separator } from 'src/ui/separator';
@@ -26,76 +27,71 @@ export const ArticleParamsForm = ({
 	onApply,
 	currentStyle,
 }: ArticleParamsFormProps) => {
-	const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+	const [isFormOpen, setFormOpen] = useState(false);
 	const modalRef = useRef(null);
 	const [formState, setFormState] = useState(
 		currentStyle || defaultArticleState
 	);
-	useOutsideClickClose({isOpen: isSidebarOpen, rootRef: modalRef, onChange: setIsSidebarOpen });
+	useOutsideClickClose({isOpen: isFormOpen, rootRef: modalRef, onChange: setFormOpen });
 
-	const handleSubmit = (e: React.FormEvent) => {
+	const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
-		setIsSidebarOpen(false);
+		setFormOpen(false);
 		onApply?.(formState);
 	};
 
-	const handleReset = (e: React.FormEvent) => {
+	const handleReset = (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		setFormState(defaultArticleState);
-		setIsSidebarOpen(false);
+		setFormOpen(false);
 		onApply?.(defaultArticleState);
 	};
 	const handleToggleSidebar = () => {
-		setIsSidebarOpen(!isSidebarOpen)
+		setFormOpen(!isFormOpen)
 	}
+	const updateFormField = (field: keyof typeof formState) => {
+		return (value: OptionType) => {
+			setFormState({ ...formState, [field]: value });
+		};
+	};
 	return (
 		<>
-			<ArrowButton isOpen={isSidebarOpen} onClick={handleToggleSidebar} />
+			<ArrowButton isOpen={isFormOpen} onClick={handleToggleSidebar} />
 			<aside
 				ref={modalRef}
-				className={clsx(styles.container, { [styles.container_open]: isSidebarOpen })}>
+				className={clsx(styles.container, { [styles.container_open]: isFormOpen })}>
 				<form
 					className={styles.form}
 					onSubmit={handleSubmit}
 					onReset={handleReset}>
 					<Select
-						onChange={(newOption) =>
-							setFormState({ ...formState, fontFamilyOption: newOption })
-						}
+						onChange={updateFormField('fontFamilyOption')}
 						selected={formState.fontFamilyOption}
 						options={fontFamilyOptions}
 						title='Шрифт'
 					/>
 					<RadioGroup
-						onChange={(newOption) =>
-							setFormState({ ...formState, fontSizeOption: newOption })
-						}
+						onChange={updateFormField('fontSizeOption')}
 						name={'font-size'}
 						selected={formState.fontSizeOption}
 						options={fontSizeOptions}
 						title='Размер шрифта'
 					/>
 					<Select
-						onChange={(newOption) =>
-							setFormState({ ...formState, fontColor: newOption })
-						}
+						onChange={updateFormField('fontColor')}
 						selected={formState.fontColor}
 						options={fontColors}
 						title='Цвет шрифта'
 					/>
 					<Separator />
 					<Select
-						onChange={(newOption) =>
-							setFormState({ ...formState, backgroundColor: newOption })
-						}
+						onChange={updateFormField('backgroundColor')}
 						selected={formState.backgroundColor}
 						options={backgroundColors}
 						title='Цвет фона'
 					/>
 					<Select
-						onChange={(newOption) =>
-							setFormState({ ...formState, contentWidth: newOption })
-						}
+						onChange={updateFormField('contentWidth')}
 						selected={formState.contentWidth}
 						options={contentWidthArr}
 						title='Ширина контента'
