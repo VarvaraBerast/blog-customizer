@@ -26,31 +26,34 @@ export const ArticleParamsForm = ({
 	onApply,
 	currentStyle,
 }: ArticleParamsFormProps) => {
-	const [isOpen, setIsOpen] = useState(false);
+	const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 	const modalRef = useRef(null);
 	const [formState, setFormState] = useState(
 		currentStyle || defaultArticleState
 	);
-	useOutsideClickClose({ isOpen, rootRef: modalRef, onChange: setIsOpen });
+	useOutsideClickClose({isOpen: isSidebarOpen, rootRef: modalRef, onChange: setIsSidebarOpen });
 
 	const handleSubmit = (e: React.FormEvent) => {
 		e.preventDefault();
-		setIsOpen(false);
+		setIsSidebarOpen(false);
 		onApply?.(formState);
 	};
 
 	const handleReset = (e: React.FormEvent) => {
 		e.preventDefault();
 		setFormState(defaultArticleState);
-		setIsOpen(false);
+		setIsSidebarOpen(false);
 		onApply?.(defaultArticleState);
 	};
+	const handleToggleSidebar = () => {
+		setIsSidebarOpen(!isSidebarOpen)
+	}
 	return (
 		<>
-			<ArrowButton isOpen={isOpen} onClick={() => setIsOpen(!isOpen)} />
+			<ArrowButton isOpen={isSidebarOpen} onClick={handleToggleSidebar} />
 			<aside
 				ref={modalRef}
-				className={clsx(styles.container, { [styles.container_open]: isOpen })}>
+				className={clsx(styles.container, { [styles.container_open]: isSidebarOpen })}>
 				<form
 					className={styles.form}
 					onSubmit={handleSubmit}
